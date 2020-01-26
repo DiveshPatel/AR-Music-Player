@@ -46,10 +46,19 @@ public class PlaneScript : MonoBehaviour
 
     }
 
-    private void PlaceObject()
+    private IEnumerator PlaceObject()
     {
         objRef = Instantiate(objectToPlace, PlacementPose.position, PlacementPose.rotation);
         objectPlaced = true;
+
+        string url = "https://cdn.apps.playnetwork.com/master/65e2c70ba416c00cf710bc3dc698c38108c19ccf778aabe36098d8d1d225fb5a.ogg?Signature=BknX0Q6lPu58UV6OaH01DqP4PpzsxpkY7XuFh8J5JL6x0DolJ-vgBzEY6TJlNU-mGeRiwxZ4oBn-ihrc~CRMwZqlxV8b0q7NIfY38J6Se8kWG0Am-E0s-9ZrjI~zTR4RDGgIKkYLfNF8G9WwrIFY~7BEkq2u4ombuuV6XiFyOY-lnSHYFDt7MNS6mjPlQRQZfGCBRzI0nuYvOL0ZJpH9rT4U9SR791cdpNJE27pDxYlyt6gSKh0Sg5Aa98sVLBnnyetFaTRdZbWNd8Tbdpni-uuxwKei25Sk9aPQz08gWoplUtYRFzP36aazgotetVBAWrO5EicVKbPd79zxrlaVtA__&Key-Pair-Id=APKAJ4GOPJEICF5TREYA&Expires=1580025515";
+        GameObject Musique = GameObject.Find("pb-MergedObject-67100");
+        AudioSource audioSource = Musique.GetComponent<AudioSource>();
+        WWW music = new WWW(url);
+        yield return music;
+        AudioClip lamusic = music.GetAudioClipCompressed(true, AudioType.OGGVORBIS);
+        audioSource.clip = lamusic;
+        audioSource.Play();
     }
 
     private void UpdatePlacementIndicator()
