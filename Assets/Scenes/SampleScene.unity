@@ -440,7 +440,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe02644b8b5a146b4a30d208168d3815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToPlace: {fileID: 0}
+  objectToPlace: {fileID: 2441597165526600440, guid: 9bffbfd818f4b43fc8a53db742b5a27d,
+    type: 3}
   placementIndicator: {fileID: 1577749883}
 --- !u!4 &259715465
 Transform:
@@ -450,7 +451,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 259715463}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.7197981, y: -0.40433818, z: -0.77272105}
+  m_LocalPosition: {x: 0, y: 0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

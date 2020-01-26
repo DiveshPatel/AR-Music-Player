@@ -10,6 +10,7 @@ using System;
 public class PlaneScript : MonoBehaviour
 {
     public GameObject objectToPlace;
+    private bool objectPlaced = false;
     public GameObject placementIndicator;
     private ARRaycastManager arOrigin;
     private Pose PlacementPose;
@@ -27,15 +28,26 @@ public class PlaneScript : MonoBehaviour
         UpdatePlacementPose();
         UpdatePlacementIndicator();
 
-        if (placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !objectPlaced)
         {
             PlaceObject();
         }
+
+        if(placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && objectPlaced) {
+            RemoveObject();
+        }
+    }
+
+    private void RemoveObject()
+    {
+        Destroy(objectToPlace);
+        objectPlaced = false;
     }
 
     private void PlaceObject()
     {
         Instantiate(objectToPlace, PlacementPose.position, PlacementPose.rotation);
+        objectPlaced = true;
     }
 
     private void UpdatePlacementIndicator()
