@@ -2,29 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
-//using UnityEngine.Experimental.XR;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.Networking;
 
-using System;
 
 public class PlaneScript : MonoBehaviour
 {
     public GameObject objectToPlace;
-
+    public string URL = "https://file-examples.com/wp-content/uploads/2017/11/file_example_OOG_1MG.ogg";
+    public AudioSource audioSource;
     public GameObject objRef;
-    private bool objectPlaced = false;
+    private bool objectPlaced;
     public GameObject placementIndicator;
     private ARRaycastManager arOrigin;
     private Pose PlacementPose;
-    private bool placementPoseIsValid = false;
+    private bool placementPoseIsValid;
     void Start()
     {
-        
-        
+
+
         arOrigin = FindObjectOfType<ARRaycastManager>();
-    
+        StartCoroutine(GetAudioClip());
+
     }
-     
+
     void Update()
     {
         UpdatePlacementPose();
@@ -33,9 +34,12 @@ public class PlaneScript : MonoBehaviour
         if (placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !objectPlaced)
         {
             PlaceObject();
+            audioSource.Play();
+
         }
         else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && objectPlaced) {
             RemoveObject();
+            audioSource.Stop();
         }
     }
 
@@ -50,6 +54,24 @@ public class PlaneScript : MonoBehaviour
     {
         objRef = Instantiate(objectToPlace, PlacementPose.position, PlacementPose.rotation);
         objectPlaced = true;
+    }
+
+
+    IEnumerator GetAudioClip()
+    {
+        using (var uwr = UnityWebRequestMultimedia.GetAudioClip(URL, AudioType.OGGVORBIS))
+        {
+            yield return uwr.SendWebRequest();
+            if (uwr.isNetworkError || uwr.isHttpError)
+            {
+                Debug.LogError(uwr.error);
+                yield break;
+            }
+
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(uwr);
+            audioSource.clip = clip;
+
+        }
     }
 
     private void UpdatePlacementIndicator()
