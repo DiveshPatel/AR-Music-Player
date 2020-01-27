@@ -2,29 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
-//using UnityEngine.Experimental.XR;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.Networking;
 
-using System;
 
 public class PlaneScript : MonoBehaviour
 {
     public GameObject objectToPlace;
-
+    public string URL = "https://file-examples.com/wp-content/uploads/2017/11/file_example_OOG_1MG.ogg";
+    public AudioSource audioSource;
     public GameObject objRef;
-    private bool objectPlaced = false;
+    private bool objectPlaced;
     public GameObject placementIndicator;
     private ARRaycastManager arOrigin;
     private Pose PlacementPose;
-    private bool placementPoseIsValid = false;
+    private bool placementPoseIsValid;
     void Start()
     {
-        
-        
+
+
         arOrigin = FindObjectOfType<ARRaycastManager>();
-    
+        StartCoroutine(GetAudioClip());
+
     }
-     
+
     void Update()
     {
         UpdatePlacementPose();
@@ -33,9 +34,12 @@ public class PlaneScript : MonoBehaviour
         if (placementPoseIsValid && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !objectPlaced)
         {
             PlaceObject();
+            audioSource.Play();
+
         }
         else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && objectPlaced) {
             RemoveObject();
+            audioSource.Stop();
         }
     }
 
@@ -46,19 +50,28 @@ public class PlaneScript : MonoBehaviour
 
     }
 
-    private IEnumerator PlaceObject()
+    private void PlaceObject()
     {
         objRef = Instantiate(objectToPlace, PlacementPose.position, PlacementPose.rotation);
         objectPlaced = true;
+    }
 
-        string url = "https://cdn.apps.playnetwork.com/master/65e2c70ba416c00cf710bc3dc698c38108c19ccf778aabe36098d8d1d225fb5a.ogg?Signature=BknX0Q6lPu58UV6OaH01DqP4PpzsxpkY7XuFh8J5JL6x0DolJ-vgBzEY6TJlNU-mGeRiwxZ4oBn-ihrc~CRMwZqlxV8b0q7NIfY38J6Se8kWG0Am-E0s-9ZrjI~zTR4RDGgIKkYLfNF8G9WwrIFY~7BEkq2u4ombuuV6XiFyOY-lnSHYFDt7MNS6mjPlQRQZfGCBRzI0nuYvOL0ZJpH9rT4U9SR791cdpNJE27pDxYlyt6gSKh0Sg5Aa98sVLBnnyetFaTRdZbWNd8Tbdpni-uuxwKei25Sk9aPQz08gWoplUtYRFzP36aazgotetVBAWrO5EicVKbPd79zxrlaVtA__&Key-Pair-Id=APKAJ4GOPJEICF5TREYA&Expires=1580025515";
-        GameObject Musique = GameObject.Find("pb-MergedObject-67100");
-        AudioSource audioSource = Musique.GetComponent<AudioSource>();
-        WWW music = new WWW(url);
-        yield return music;
-        AudioClip lamusic = music.GetAudioClipCompressed(true, AudioType.OGGVORBIS);
-        audioSource.clip = lamusic;
-        audioSource.Play();
+
+    IEnumerator GetAudioClip()
+    {
+        using (var uwr = UnityWebRequestMultimedia.GetAudioClip(URL, AudioType.OGGVORBIS))
+        {
+            yield return uwr.SendWebRequest();
+            if (uwr.isNetworkError || uwr.isHttpError)
+            {
+                Debug.LogError(uwr.error);
+                yield break;
+            }
+
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(uwr);
+            audioSource.clip = clip;
+
+        }
     }
 
     private void UpdatePlacementIndicator()
